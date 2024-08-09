@@ -1,0 +1,17 @@
+{
+  "name": "chat-rest-api",
+  "version": "1.0.0",
+  "description": "Qualification task for the position of Backend JS Developer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^4.28.1",
+    "pg": "^8.12.0"
+  }
+}
