@@ -1,0 +1,19 @@
+{
+    "postSchema": {
+      "body": {
+        "type": "object",
+        "required": ["name", "password"],
+        "properties": {
+          "name": { "type": "string" }
+        }
+      },
+      "response": {
+        "200": {
+          "type": "object",
+          "properties": {
+            "message": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
