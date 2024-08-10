@@ -1,10 +1,11 @@
 {
-    "postSchema": {
+    "registerSchema": {
       "body": {
         "type": "object",
-        "required": ["name", "password"],
+        "required": ["login", "password"],
         "properties": {
-          "name": { "type": "string" }
+          "login": { "type": "string", "minLength": 3 },
+          "password": { "type": "string", "minLength": 8 }
         }
       },
       "response": {

@@ -11,8 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/pg": "^8.11.6",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
-    "pg": "^8.12.0"
+    "node-postgres-named": "^2.4.1",
+    "pg": "^8.12.0",
+    "pg-format": "^1.0.4"
   },
   "devDependencies": {
     "@types/node": "^22.2.0",

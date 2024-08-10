@@ -1,16 +1,19 @@
-import helloRoute from './routes/helloRoute';
+import Fastify from 'fastify';
+import basicAuth from './plugins/basicAuth';
+import accountRoutes from './routes/accountRoutes';
 
-const fastify = require('fastify');
+const fastify = Fastify({ logger: true });
 
-const server = fastify();
+fastify.register(basicAuth);
+fastify.register(accountRoutes);
 
-// Виклик функції з модуля helloRoute
-helloRoute(server);
-
-server.listen({port: 3000}, (err: Error, address: string) => {
-    if (err) {
-        console.error('Error starting server:', err);
+// Start a server
+const start = async () => {
+    try {
+        await fastify.listen({port: 3000});
+    } catch (err) {
+        fastify.log.error(err);
         process.exit(1);
     }
-    console.log(`Server listening on ${address}`);
-});
+};
+start();
