@@ -2,16 +2,22 @@
   "name": "chat-rest-api",
   "version": "1.0.0",
   "description": "Qualification task for the position of Backend JS Developer",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "directory-import": "^3.3.1",
     "fastify": "^4.28.1",
+    "lodash": "^4.17.21",
     "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.2.0",
+    "typescript": "^5.5.4"
   }
 }
