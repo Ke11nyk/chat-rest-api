@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fp from 'fastify-plugin';
 import db from '../db';
 
-export default async function basicAuth(fastify: FastifyInstance) {
+async function basicAuth(fastify: FastifyInstance) {
     fastify.decorate('authenticate', async (req: FastifyRequest, res: FastifyReply) => {
         try {
             const auth = req.headers.authorization;
@@ -15,20 +16,22 @@ export default async function basicAuth(fastify: FastifyInstance) {
             const result = await db.query('SELECT * FROM users WHERE login = $login', { login });
             const user = result.rows[0];
             if (!user) {
-                throw new Error('Authentication failed');
+                throw new Error('Incorrect login or password');
             }
 
             const isValid = await bcrypt.compare(password, user.password);
             if (!isValid) {
-                throw new Error('Authentication failed');
+                throw new Error('Incorrect login or password');
             }
 
             req.user = user; // Attach user to request
-        } catch (err) {
-            res.code(401).send({ error: 'Authentication required' });
+        } catch (err: any) {
+            res.code(401).send({ error: 'Authentication failed', message: err.message });
         }
     });
 }
+
+export default fp(basicAuth, { name: 'basicAuth' });
 
 declare module 'fastify' {
     interface FastifyInstance {
