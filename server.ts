@@ -1,9 +1,18 @@
+import fastifyMultipart from '@fastify/multipart';
 import Fastify from 'fastify';
 import basicAuth from './plugins/basicAuth';
+
 import accountRoutes from './routes/accountRoutes';
-import messageRoutes from './routes/messageRoutes';
+import fileMessageRoutes from './routes/fileMessageRoutes';
+import textMessageRoutes from './routes/textMessageRoutes';
 
 const fastify = Fastify({ logger: true });
+
+fastify.register(fastifyMultipart, {
+    limits: {
+      fileSize: 5 * 1024 * 1024 // for example, limit file size to 5MB
+    }
+  });
 
 // Register basicAuth plugin
 fastify.register(basicAuth);
@@ -13,14 +22,8 @@ fastify.register(async (instance) => {
     instance.register(accountRoutes);
     // Add a global hook with Basic Auth for other routes
     fastify.addHook("preHandler", fastify.authenticate);
-    instance.register(messageRoutes);
-
-    // Add the test route with authentication
-    instance.get('/test', {
-        preHandler: instance.authenticate
-    }, async (request, reply) => {
-        reply.send("Test authenticated route");
-    });
+    instance.register(textMessageRoutes);
+    instance.register(fileMessageRoutes);
 });
 
 // Start the server
