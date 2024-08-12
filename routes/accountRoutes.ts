@@ -30,9 +30,9 @@ export default async function accountRoutes(fastify: FastifyInstance) {
                 );
 
                 res.send({ message: 'User registered successfully' });
-            } catch (error) {
-                fastify.log.error(error);
-                res.code(500).send({ message: 'Internal Server Error' });
+            } catch (err: any) {
+                fastify.log.error(err);
+                res.code(500).send({ message: 'Internal Server Error', error: err.message });
             }
         },
     });
