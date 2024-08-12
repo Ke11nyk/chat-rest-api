@@ -1,0 +1,293 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Chat REST API",
+    "description": "A simple chat API with user registration and message handling",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/"
+    }
+  ],
+  "paths": {
+    "/account/register": {
+      "post": {
+        "summary": "Register a new user",
+        "description": "Create a new user account with login and password",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "login": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "login",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully registered"
+          },
+          "400": {
+            "description": "User already exists"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/message/text": {
+      "post": {
+        "summary": "Create a text message",
+        "description": "Create a new text message in the chat",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message registered successfully"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/message/file": {
+      "post": {
+        "summary": "Upload a file message",
+        "description": "Upload a new file message to the chat",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "content": {
+          "file": {
+            "type": "string",
+            "format": "base64"
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "File message registered successfully"
+          },
+          "400": {
+            "description": "No file uploaded"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/message/list": {
+      "get": {
+        "summary": "Get list of messages",
+        "description": "Retrieve a paginated list of all messages in the chat",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Message"
+                      }
+                    },
+                    "totalPages": {
+                      "type": "integer"
+                    },
+                    "pageCount": {
+                      "type": "integer"
+                    },
+                    "currentPage": {
+                      "type": "integer"
+                    },
+                    "perPage": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/message/content/{id}": {
+      "get": {
+        "summary": "Get message content",
+        "description": "Retrieve the raw content of a specific message",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID of the message to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "text/plain": {},
+              "Content-type of file": {},
+              "application/octet-stream": {}
+            }
+          },
+          "400": {
+            "description": "Unsupported message type"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          },
+          "404-message": {
+            "description": "Message not found"
+          },
+          "404-file": {
+            "description": "File not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    },
+    "schemas": {
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "file"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "file_path": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "login": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
