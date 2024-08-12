@@ -1,4 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fs from 'fs/promises';
+import mime from 'mime-types';
+import path from 'path';
 import db from '../db';
 
 import { messageListSchema } from '../schemas/messageSchema.json';
@@ -77,4 +80,66 @@ export default async function messageRoutes(fastify: FastifyInstance) {
           }
         },
     });
+
+    fastify.route({
+      method: 'GET',
+      url: '/message/content/:id',
+      schema: {
+          params: {
+              type: 'object',
+              properties: {
+                  id: { type: 'integer' }
+              },
+              required: ['id']
+          }
+      },
+      preHandler: fastify.authenticate,
+      handler: async (req: FastifyRequest<{
+          Params: { id: number }
+      }>, res: FastifyReply) => {
+          const { id } = req.params;
+  
+          try {
+              const messageResult = await db.query(
+                  'SELECT type, content, file_path FROM messages WHERE id = $id',
+                  { id }
+              );
+  
+              if (messageResult.rows.length === 0) {
+                  return res.code(404).send({ message: 'Message not found' });
+              }
+  
+              const message = messageResult.rows[0];
+  
+              if (message.type === 'text') {
+                  res.header('Content-Type', 'text/plain');
+                  return res.send(message.content);
+              } else if (message.type === 'file') {
+                  const filePath = path.resolve(message.file_path);
+                  
+                  // Check if file exists before trying to read it
+                  try {
+                      await fs.access(filePath);
+                  } catch (error) {
+                      fastify.log.error(`File not found: ${filePath}`);
+                      return res.code(404).send({ message: 'File not found' });
+                  }
+  
+                  const fileContent = await fs.readFile(filePath);
+                  const mimeType = mime.lookup(filePath) || 'application/octet-stream';
+  
+                  res.header('Content-Type', mimeType);
+                  return res.send(fileContent);
+              } else {
+                  return res.code(400).send({ message: 'Unsupported message type' });
+              }
+          } catch (err: any) {
+              fastify.log.error(err);
+              if (err.code === 'ENOENT') {
+                  return res.code(404).send({ message: 'File not found' });
+              }
+              res.code(500).send({ message: 'Internal Server Error', error: err.message });
+          }
+      },
+  });
 }
