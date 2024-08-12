@@ -4,13 +4,13 @@ import basicAuth from './plugins/basicAuth';
 
 import accountRoutes from './routes/accountRoutes';
 import fileMessageRoutes from './routes/fileMessageRoutes';
-import textMessageRoutes from './routes/textMessageRoutes';
+import messageRoutes from './routes/messageRoutes';
 
 const fastify = Fastify({ logger: true });
 
 fastify.register(fastifyMultipart, {
     limits: {
-      fileSize: 5 * 1024 * 1024 // for example, limit file size to 5MB
+      fileSize: 5 * 1024 * 1024 // limit file size to 5MB
     }
   });
 
@@ -22,7 +22,7 @@ fastify.register(async (instance) => {
     instance.register(accountRoutes);
     // Add a global hook with Basic Auth for other routes
     fastify.addHook("preHandler", fastify.authenticate);
-    instance.register(textMessageRoutes);
+    instance.register(messageRoutes);
     instance.register(fileMessageRoutes);
 });
 
