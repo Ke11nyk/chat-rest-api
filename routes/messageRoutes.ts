@@ -1,10 +1,13 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import fs from 'fs/promises';
+import fs, { promises as fsp } from 'fs';
 import mime from 'mime-types';
 import path from 'path';
+import util from 'util';
 import db from '../db';
 
-import { messageListSchema } from '../schemas/messageSchema.json';
+const pump = util.promisify(require('stream').pipeline);
+
+import { messageListSchema } from '../schemas/messageListSchema.json';
 import { textMessageSchema } from '../schemas/textMessageSchema.json';
 
 export default async function messageRoutes(fastify: FastifyInstance) {
@@ -13,9 +16,9 @@ export default async function messageRoutes(fastify: FastifyInstance) {
         url: '/message/text',
         schema: textMessageSchema,
         handler: async (req: FastifyRequest, res: FastifyReply) => {
-            const { content } = req.body as { content: string };
             const type = "text";
             const user_login = req.user.login;
+            const { content } = req.body as { content: string };
 
             try {
                 // Create new message
@@ -34,6 +37,45 @@ export default async function messageRoutes(fastify: FastifyInstance) {
             }
         },
     });
+
+    fastify.route({
+      method: 'POST',
+      url: '/message/file',
+      preHandler: fastify.authenticate,
+      handler: async (req: FastifyRequest, res: FastifyReply) => {
+          const type = "file";
+          const user_login = req.user.login;
+          const data = await req.file();  
+          
+          if (!data) {
+              res.code(400).send({ error: 'No file uploaded' });
+              return;
+          }
+
+          try {
+              const file_name = `${Date.now()}-${data.filename}`;
+              const file_path = path.join('./uploads', file_name);
+      
+              // Save the file to the specified path
+              await pump(data.file, fs.createWriteStream(file_path));
+      
+              // Create new message
+              await db.query(
+                  'INSERT INTO messages (user_id, type, file_path)\
+                   SELECT u.id, $type, $file_path\
+                   FROM users u\
+                   WHERE u.login = $user_login;',
+                  { type, file_path, user_login }
+              );
+
+              res.send({ message: 'File message registered successfully' });
+          } catch (err: any) {
+              fastify.log.error(err);
+              res.code(500).send({ message: 'Internal Server Error', error: err.message });
+          }
+      },
+  });
+
 
     fastify.route({
         method: 'GET',
@@ -81,6 +123,7 @@ export default async function messageRoutes(fastify: FastifyInstance) {
         },
     });
 
+    
     fastify.route({
       method: 'GET',
       url: '/message/content/:id',
@@ -119,13 +162,13 @@ export default async function messageRoutes(fastify: FastifyInstance) {
                   
                   // Check if file exists before trying to read it
                   try {
-                      await fs.access(filePath);
+                      await fsp.access(filePath);
                   } catch (error) {
                       fastify.log.error(`File not found: ${filePath}`);
                       return res.code(404).send({ message: 'File not found' });
                   }
   
-                  const fileContent = await fs.readFile(filePath);
+                  const fileContent = await fsp.readFile(filePath);
                   const mimeType = mime.lookup(filePath) || 'application/octet-stream';
   
                   res.header('Content-Type', mimeType);
