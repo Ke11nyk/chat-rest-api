@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  chat-rest-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    volumes:
+      - ./src:/home/node/app/src
+      - ./nodemon.json:/home/node/app/nodemon.json
+    container_name: chat-rest-api
+    expose:
+      - '3000'
+    ports:
+      - '3000:3000'
+    command: npm run dev
+    profiles: ["dev"]
+
+  chat-rest-api-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: chat-rest-api-prod
+    expose:
+      - '3000'
+    ports:
+      - '3000:3000'
+    command: node dist/index.js
+    profiles: ["prod"]
