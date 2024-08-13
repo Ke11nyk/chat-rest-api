@@ -11,7 +11,7 @@ server.register(fastifyMultipart, {
     limits: {
       fileSize: 5 * 1024 * 1024 // limit file size to 5MB
     }
-  });
+});
 
 // Register basicAuth plugin
 server.register(basicAuth);
