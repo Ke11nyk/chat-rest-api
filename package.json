@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "NODE_PATH=./dist node dist/index.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon src/index.ts",
+    "migrate": "db-migrate up"
   },
   "keywords": [],
   "author": "",
@@ -15,11 +16,12 @@
     "@fastify/multipart": "^8.3.0",
     "@types/pg": "^8.11.6",
     "bcryptjs": "^2.4.3",
+    "db-migrate": "^0.11.14",
+    "db-migrate-pg": "^1.5.2",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
     "mime-types": "^2.1.35",
     "node-postgres-named": "^2.4.1",
-    "pg": "^8.12.0",
     "pg-format": "^1.0.4"
   },
   "devDependencies": {

@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:13
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migration
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    profiles: ["dev", "prod"]
+
   chat-rest-api:
     build:
       context: .
@@ -16,6 +36,9 @@ services:
       - '3000:3000'
     command: npm run dev
     profiles: ["dev"]
+    depends_on:
+      - db
+      - migration
 
   chat-rest-api-prod:
     build:
@@ -29,3 +52,9 @@ services:
       - '3000:3000'
     command: node dist/index.js
     profiles: ["prod"]
+    depends_on:
+      - db
+      - migration
+
+volumes:
+  postgres_data:
