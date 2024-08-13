@@ -19,8 +19,6 @@ server.register(basicAuth);
 server.register(async (instance) => {
     // Register routes
     instance.register(accountRoutes);
-    // Add a global hook with Basic Auth for other routes
-    server.addHook("preHandler", server.authenticate);
     instance.register(messageRoutes);
 });
 

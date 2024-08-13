@@ -15,6 +15,7 @@ export default async function messageRoutes(fastify: FastifyInstance) {
         method: 'POST',
         url: '/message/text',
         schema: textMessageSchema,
+        preHandler: fastify.authenticate,
         handler: async (req: FastifyRequest, res: FastifyReply) => {
             const type = "text";
             const user_login = req.user.login;
@@ -41,6 +42,7 @@ export default async function messageRoutes(fastify: FastifyInstance) {
     fastify.route({
         method: 'POST',
         url: '/message/file',
+        preHandler: fastify.authenticate,
         handler: async (req: FastifyRequest, res: FastifyReply) => {
             const type = "file";
             const user_login = req.user.login;
@@ -80,6 +82,7 @@ export default async function messageRoutes(fastify: FastifyInstance) {
         method: 'GET',
         url: '/message/list',
         schema: messageListSchema,
+        preHandler: fastify.authenticate,
         handler: async (req: FastifyRequest<{
             Querystring: { page?: number; limit?: number }
         }>, res: FastifyReply) => {
@@ -134,6 +137,7 @@ export default async function messageRoutes(fastify: FastifyInstance) {
                 required: ['id']
             }
         },
+        preHandler: fastify.authenticate,
         handler: async (req: FastifyRequest<{
             Params: { id: number }
         }>, res: FastifyReply) => {
