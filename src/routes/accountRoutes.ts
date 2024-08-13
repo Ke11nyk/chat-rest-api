@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import db from '../db';
 import { registerSchema } from '../schemas/accountSchema.json';
@@ -29,7 +29,7 @@ export default async function accountRoutes(fastify: FastifyInstance) {
                     { login, password: hashedPassword }
                 );
 
-                res.send({ message: 'User registered successfully' });
+                res.code(200).send({ message: 'User registered successfully' });
             } catch (err: any) {
                 fastify.log.error(err);
                 res.code(500).send({ message: 'Internal Server Error', error: err.message });

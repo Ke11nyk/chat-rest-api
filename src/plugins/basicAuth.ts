@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
 import db from '../db';
@@ -38,6 +38,6 @@ declare module 'fastify' {
         authenticate: (req: FastifyRequest, res: FastifyReply) => Promise<void>;
     }
     interface FastifyRequest {
-        user?: any; 
+        user?: any;
     }
 }
