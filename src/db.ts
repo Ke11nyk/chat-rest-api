@@ -21,7 +21,9 @@ function sqlFormatNamed(sql: string, params: QueryParams): [string, any[]] {
   });
   return [formatted, values];
 }
-
+/**
+ *  Гарна практика робити міграції при кожному запуску сервера, не по виклику команди в терміналі
+ */
 export default {
   query: async (text: string, params: QueryParams = {}): Promise<QueryResult> => {
     const [formattedText, values] = sqlFormatNamed(text, params);

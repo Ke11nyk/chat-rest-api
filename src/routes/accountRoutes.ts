@@ -9,8 +9,16 @@ export default async function accountRoutes(fastify: FastifyInstance) {
         url: '/account/register',
         schema: registerSchema,
         handler: async (req: FastifyRequest, res: FastifyReply) => {
+            /**
+             * Треба розділяти код по файлам а саме за відповідальністю: controller, logic, schema, type etc
+             * Не робити все в контроллері
+             */
+
             const { login, password } = req.body as { login: string; password: string };
 
+            /**
+             * Почитай про error handling у fastify
+             */
             try {
                 // Check if user already exists
                 const existingUser = await db.query('SELECT * FROM users WHERE login = $login', { login });

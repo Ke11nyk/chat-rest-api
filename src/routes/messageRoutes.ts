@@ -15,6 +15,10 @@ export default async function messageRoutes(fastify: FastifyInstance) {
         method: 'POST',
         url: '/message/text',
         schema: textMessageSchema,
+        /**
+         * Можна винести як хук а не навішувати на кожний контроллер
+         * Почитай про register
+         */
         preHandler: fastify.authenticate,
         handler: async (req: FastifyRequest, res: FastifyReply) => {
             const type = "text";
