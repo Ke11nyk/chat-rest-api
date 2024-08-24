@@ -59,7 +59,11 @@ export default async function messageRoutes(fastify: FastifyInstance) {
 
             try {
                 const file_name = `${Date.now()}-${data.filename}`;
-                const file_path = path.join('./uploads', file_name);
+                const dir = './uploads';
+
+                if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+
+                const file_path = path.join(dir, file_name);
         
                 // Save the file to the specified path
                 await pump(data.file, fs.createWriteStream(file_path));
