@@ -7,9 +7,10 @@ import messageRoutes from './routes/messageRoutes';
 
 const server = Fastify({ logger: true });
 
+// Limit file size to 5MB
 server.register(fastifyMultipart, {
     limits: {
-      fileSize: 5 * 1024 * 1024 // limit file size to 5MB
+      fileSize: 5 * 1024 * 1024
     }
 });
 
@@ -17,6 +18,12 @@ server.register(fastifyMultipart, {
 server.register(basicAuth);
 
 server.register(async (instance) => {
+    // Hook with basicAuth for all routes except /account/register
+    server.addHook("onRequest", async (request, reply) => {
+        const publicRoutes = ['/account/register'];
+        if (!publicRoutes.includes(request.url)) return server.authenticate(request, reply);
+      });
+
     // Register routes
     instance.register(accountRoutes);
     instance.register(messageRoutes);
