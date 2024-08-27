@@ -5,6 +5,15 @@ import basicAuth from './plugins/basicAuth';
 import accountRoutes from './routes/accountRoutes';
 import messageRoutes from './routes/messageRoutes';
 
+import {
+  FileNotFoundError,
+  InternalServerError,
+  MessageNotFoundError,
+  NoFileUploadedError,
+  UnsupportedMessageTypeError,
+  UserExistsError
+} from './errors/customErrors';
+
 const server = Fastify({ logger: true });
 
 // Limit file size to 5MB
@@ -28,6 +37,27 @@ server.register(async (instance) => {
     instance.register(accountRoutes);
     instance.register(messageRoutes);
 });
+
+// Error handling
+server.setErrorHandler((error, request, reply) => {
+    request.log.error(error);
+    
+    if (error instanceof UserExistsError) {
+      reply.status(400).send({ message: error.message });
+    } else if (error instanceof InternalServerError) {
+      reply.status(500).send({ message: 'Internal Server Error' });
+    } else if (error instanceof NoFileUploadedError) {
+      reply.status(400).send({ message: error.message });
+    } else if (error instanceof MessageNotFoundError) {
+      reply.status(404).send({ message: error.message });
+    } else if (error instanceof UnsupportedMessageTypeError) {
+      reply.status(400).send({ message: error.message });
+    } else if (error instanceof FileNotFoundError) {
+      reply.status(404).send({ message: error.message });
+    } else {
+      reply.status(500).send({ message: 'An unexpected error occurred' });
+    }
+  });
 
 // Start the server
 const start = async () => {
