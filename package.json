@@ -5,9 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "NODE_PATH=./dist node dist/index.js",
-    "dev": "nodemon src/index.ts",
-    "migrate": "db-migrate up"
+    "prod-start": "NODE_PATH=./dist node dist/index.js",
+    "dev-start": "nodemon src/index.ts",
+    "migrate": "db-migrate up",
+    "migrate-down": "db-migrate down",
+    "start": "npm run migrate && npm run prod-start",
+    "dev": "npm run migrate && npm run dev-start"
   },
   "keywords": [],
   "author": "",
